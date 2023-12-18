@@ -41,28 +41,6 @@ export const addContact = createAsyncThunk(
   }
 );
 
-export const updateContact = createAsyncThunk(
-  'contacts/updateContact',
-  async ({ id, updatedContact }) => {
-    try {
-      const response = await fetch(`${apiEndpoint}/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updatedContact),
-      });
-      if (!response.ok) {
-        throw new Error('Failed to update contact');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      throw new Error(error.message);
-    }
-  }
-);
-
 export const deleteContact = createAsyncThunk(
   'contacts/deleteContact',
   async id => {
@@ -104,14 +82,6 @@ const contactsSlice = createSlice({
       })
       .addCase(addContact.fulfilled, (state, action) => {
         state.items.push(action.payload);
-      })
-      .addCase(updateContact.fulfilled, (state, action) => {
-        const updatedIndex = state.items.findIndex(
-          contact => contact.id === action.payload.id
-        );
-        if (updatedIndex !== -1) {
-          state.items[updatedIndex] = action.payload;
-        }
       })
       .addCase(deleteContact.fulfilled, (state, action) => {
         state.items = state.items.filter(

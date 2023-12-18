@@ -7,7 +7,6 @@ import ContactList from './ContactList';
 import {
   fetchContacts,
   addContact,
-  updateContact,
   deleteContact,
 } from '../redux/reducers/contactsSlice';
 
@@ -65,10 +64,6 @@ export const Phonebook = () => {
     dispatch(deleteContact(contactId));
   };
 
-  const handleUpdateContact = (contactId, updatedContact) => {
-    dispatch(updateContact({ id: contactId, updatedContact }));
-  };
-
   return (
     <div>
       <h1>Phonebook</h1>
@@ -89,7 +84,6 @@ export const Phonebook = () => {
         <ContactList
           contacts={contacts}
           onDeleteContact={handleDeleteContact}
-          onUpdateContact={handleUpdateContact}
         />
       )}
     </div>

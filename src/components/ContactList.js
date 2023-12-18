@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 
-const ContactList = () => {
+const ContactList = ({ onDeleteContact }) => {
   const contacts = useSelector(state => state.contacts.items || []);
   const filter = useSelector(state => state.filter.value);
 
@@ -15,6 +15,7 @@ const ContactList = () => {
       {filteredContacts.map(contact => (
         <li key={contact.id}>
           {contact.name}: {contact.number}
+          <button onClick={() => onDeleteContact(contact.id)}>Delete</button>
         </li>
       ))}
     </ul>
@@ -22,7 +23,6 @@ const ContactList = () => {
 };
 
 ContactList.propTypes = {
-  contacts: PropTypes.array,
   onDeleteContact: PropTypes.func.isRequired,
 };
 
