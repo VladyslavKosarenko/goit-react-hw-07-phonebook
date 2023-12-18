@@ -1,40 +1,46 @@
-import { nanoid } from 'nanoid';
-import { useState, useEffect } from 'react';
-import { ContactForm } from './ContactForm';
-import { Filter } from './Filter';
-import { ContactList } from './ContactList';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addContact, removeContact } from '../redux/reducers/contactsSlice';
-import { updateFilter } from '../redux/reducers/filterSlice';
+import { nanoid } from 'nanoid';
+import { ContactForm } from './ContactForm';
+import Filter from './Filter';
+import ContactList from './ContactList';
+import {
+  fetchContacts,
+  addContact,
+  updateContact,
+  deleteContact,
+} from '../redux/reducers/contactsSlice';
 
-export const PhoneBook = () => {
+export const Phonebook = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.contacts);
-  const filter = useSelector(state => state.filter.value);
+  const contacts = useSelector(state => state.contacts.items || []);
+  const isLoading = useSelector(state => state.contacts.isLoading);
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
   useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   const handleChangeName = event => {
     const value = event.target.value;
     setName(value);
   };
 
-  const handleChangePhone = event => {
+  const handleChangeNumber = event => {
     const valueNumber = event.target.value;
     setNumber(valueNumber);
   };
 
-  const handleChangeFilter = event => {
-    dispatch(updateFilter(event.target.value));
-  };
-
   const handleSubmit = event => {
     event.preventDefault();
+
+    if (!Array.isArray(contacts)) {
+      console.error('Invalid contacts data:', contacts);
+      return;
+    }
+
     if (
       contacts.some(
         contact => contact.name.toLowerCase() === name.toLowerCase()
@@ -43,28 +49,25 @@ export const PhoneBook = () => {
       alert(`${name} is already in contacts!`);
       return;
     }
+
     const newContact = {
       id: nanoid(),
       name: name,
       number: number,
     };
+
     dispatch(addContact(newContact));
     setName('');
     setNumber('');
   };
 
-  const getFilteredContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
-
   const handleDeleteContact = contactId => {
-    dispatch(removeContact(contactId));
+    dispatch(deleteContact(contactId));
   };
 
-  const filteredContacts = getFilteredContacts();
+  const handleUpdateContact = (contactId, updatedContact) => {
+    dispatch(updateContact({ id: contactId, updatedContact }));
+  };
 
   return (
     <div>
@@ -73,16 +76,22 @@ export const PhoneBook = () => {
         name={name}
         number={number}
         onNameChange={handleChangeName}
-        onNumberChange={handleChangePhone}
+        onNumberChange={handleChangeNumber}
         onSubmit={handleSubmit}
       />
 
       <h2>Contacts</h2>
-      <Filter filter={filter} onFilter={handleChangeFilter} />
-      <ContactList
-        contacts={filteredContacts}
-        onDeleteContact={handleDeleteContact}
-      />
+      <Filter />
+
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <ContactList
+          contacts={contacts}
+          onDeleteContact={handleDeleteContact}
+          onUpdateContact={handleUpdateContact}
+        />
+      )}
     </div>
   );
 };

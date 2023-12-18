@@ -1,4 +1,4 @@
-import { PhoneBook } from './Phonebook';
+import { Phonebook } from './Phonebook';
 export const App = () => {
   return (
     <div
@@ -11,7 +11,7 @@ export const App = () => {
         color: '#010101',
       }}
     >
-      <PhoneBook></PhoneBook>
+      <Phonebook></Phonebook>
     </div>
   );
 };
